@@ -7,7 +7,7 @@
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-sans);
+  --font-sans: var(--font-kalam);
   --font-mono: var(--font-geist-mono);
   --color-sidebar-ring: var(--sidebar-ring);
   --color-sidebar-border: var(--sidebar-border);
@@ -48,38 +48,42 @@
 }
 
 :root {
-  --background: oklch(1 0 0);
-  --foreground: oklch(0.145 0 0);
-  --card: oklch(1 0 0);
-  --card-foreground: oklch(0.145 0 0);
-  --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.145 0 0);
-  --primary: oklch(0.205 0 0);
-  --primary-foreground: oklch(0.985 0 0);
-  --secondary: oklch(0.97 0 0);
-  --secondary-foreground: oklch(0.205 0 0);
-  --muted: oklch(0.97 0 0);
-  --muted-foreground: oklch(0.556 0 0);
-  --accent: oklch(0.97 0 0);
-  --accent-foreground: oklch(0.205 0 0);
-  --destructive: oklch(0.577 0.245 27.325);
-  --border: oklch(0.922 0 0);
-  --input: oklch(0.922 0 0);
-  --ring: oklch(0.708 0 0);
-  --chart-1: oklch(0.809 0.105 251.813);
-  --chart-2: oklch(0.623 0.214 259.815);
-  --chart-3: oklch(0.546 0.245 262.881);
-  --chart-4: oklch(0.488 0.243 264.376);
-  --chart-5: oklch(0.424 0.199 265.638);
+  /* Warm cream paper background */
+  --background: oklch(0.985 0.008 85);
+  --foreground: oklch(0.22 0.015 55);
+  --card: oklch(0.99 0.006 85);
+  --card-foreground: oklch(0.22 0.015 55);
+  --popover: oklch(0.99 0.006 85);
+  --popover-foreground: oklch(0.22 0.015 55);
+  /* Primary = dark warm brown/ink */
+  --primary: oklch(0.25 0.02 50);
+  --primary-foreground: oklch(0.98 0.005 85);
+  /* Secondary = soft amber highlight */
+  --secondary: oklch(0.94 0.05 85);
+  --secondary-foreground: oklch(0.25 0.02 50);
+  --muted: oklch(0.94 0.01 80);
+  --muted-foreground: oklch(0.52 0.02 60);
+  --accent: oklch(0.91 0.07 80);
+  --accent-foreground: oklch(0.22 0.02 55);
+  /* destructive = warm red */
+  --destructive: oklch(0.58 0.22 25);
+  --border: oklch(0.82 0.02 70);
+  --input: oklch(0.87 0.015 75);
+  --ring: oklch(0.60 0.04 70);
+  --chart-1: oklch(0.72 0.14 50);
+  --chart-2: oklch(0.65 0.13 145);
+  --chart-3: oklch(0.60 0.18 25);
+  --chart-4: oklch(0.70 0.11 200);
+  --chart-5: oklch(0.68 0.12 280);
   --radius: 0.625rem;
-  --sidebar: oklch(0.985 0 0);
-  --sidebar-foreground: oklch(0.145 0 0);
-  --sidebar-primary: oklch(0.205 0 0);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.97 0 0);
-  --sidebar-accent-foreground: oklch(0.205 0 0);
-  --sidebar-border: oklch(0.922 0 0);
-  --sidebar-ring: oklch(0.708 0 0);
+  --sidebar: oklch(0.97 0.007 82);
+  --sidebar-foreground: oklch(0.22 0.015 55);
+  --sidebar-primary: oklch(0.25 0.02 50);
+  --sidebar-primary-foreground: oklch(0.98 0.005 85);
+  --sidebar-accent: oklch(0.94 0.05 85);
+  --sidebar-accent-foreground: oklch(0.25 0.02 50);
+  --sidebar-border: oklch(0.82 0.02 70);
+  --sidebar-ring: oklch(0.60 0.04 70);
 }
 
 .dark {
@@ -120,10 +124,245 @@
   * {
     @apply border-border outline-ring/50;
   }
+
   body {
     @apply bg-background text-foreground;
   }
+
   html {
     @apply font-sans;
   }
+}
+
+@layer utilities {
+
+  /* ── Sketchy hand-drawn borders ── */
+  .sketchy-border {
+    border-radius: 255px 15px 225px 15px/15px 225px 15px 255px !important;
+  }
+
+  .sketchy-border-2 {
+    border-radius: 15px 225px 15px 255px/225px 15px 255px 15px !important;
+  }
+
+  .sketchy-border-3 {
+    border-radius: 255px 25px 225px 25px/25px 225px 25px 255px !important;
+  }
+
+  /* ── Entrance animations ── */
+  .animate-fade-up {
+    animation: fadeUp 0.6s cubic-bezier(0.22, 1, 0.36, 1) both;
+  }
+
+  .animate-fade-up-delay-1 {
+    animation: fadeUp 0.6s 0.10s cubic-bezier(0.22, 1, 0.36, 1) both;
+  }
+
+  .animate-fade-up-delay-2 {
+    animation: fadeUp 0.6s 0.22s cubic-bezier(0.22, 1, 0.36, 1) both;
+  }
+
+  .animate-fade-up-delay-3 {
+    animation: fadeUp 0.6s 0.36s cubic-bezier(0.22, 1, 0.36, 1) both;
+  }
+
+  .animate-fade-up-delay-4 {
+    animation: fadeUp 0.6s 0.52s cubic-bezier(0.22, 1, 0.36, 1) both;
+  }
+
+  .animate-fade-up-delay-5 {
+    animation: fadeUp 0.6s 0.68s cubic-bezier(0.22, 1, 0.36, 1) both;
+  }
+
+  /* ── SVG draw-on animation ── */
+  .animate-draw {
+    stroke-dasharray: 1000;
+    stroke-dashoffset: 1000;
+    animation: draw 1.4s 0.6s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+  }
+
+  .animate-draw-2 {
+    stroke-dasharray: 1000;
+    stroke-dashoffset: 1000;
+    animation: draw 1.2s 1.0s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+  }
+
+  /* ── Logo hover wobble ── */
+  .hover-wobble:hover {
+    animation: wobble 0.5s ease;
+  }
+
+  /* ── Float subtle loop ── */
+  .animate-float {
+    animation: float 4s ease-in-out infinite;
+  }
+
+  .animate-float-slow {
+    animation: float 6s ease-in-out infinite;
+  }
+
+  /* ── Scroll reveal initial state ── */
+  .reveal-initial {
+    opacity: 0;
+    transform: translateY(22px);
+    transition: opacity 0.62s cubic-bezier(0.22, 1, 0.36, 1),
+      transform 0.62s cubic-bezier(0.22, 1, 0.36, 1);
+  }
+
+  .reveal-initial.revealed {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  /* ── Card hover lift ── */
+  .card-lift {
+    transition: transform 0.22s cubic-bezier(0.22, 1, 0.36, 1),
+      box-shadow 0.22s cubic-bezier(0.22, 1, 0.36, 1),
+      border-color 0.22s ease;
+  }
+
+  .card-lift:hover {
+    transform: translateY(-5px);
+  }
+}
+
+/* ── Marquee ── */
+.marquee-track {
+  animation: marquee 30s linear infinite;
+  will-change: transform;
+}
+
+@keyframes marquee {
+  from {
+    transform: translateX(0);
+  }
+
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+/* ── Scroll reveal ── */
+.reveal-initial {
+  opacity: 0;
+  transform: translateY(22px);
+  transition: opacity 0.62s cubic-bezier(0.22, 1, 0.36, 1),
+    transform 0.62s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.reveal-initial.revealed {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* ── Focus ring — always visible, amber ── */
+:focus-visible {
+  outline: 3px solid #E9A319;
+  outline-offset: 3px;
+}
+
+/* ── prefers-reduced-motion ── */
+@media (prefers-reduced-motion: reduce) {
+
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+
+  .marquee-track {
+    animation: none;
+  }
+
+  .reveal-initial {
+    opacity: 1 !important;
+    transform: none !important;
+    transition: none !important;
+  }
+
+  .animate-draw,
+  .animate-draw-2 {
+    stroke-dashoffset: 0 !important;
+  }
+}
+
+/* ── Keyframes ── */
+@keyframes fadeUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes draw {
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+@keyframes wobble {
+
+  0%,
+  100% {
+    transform: rotate(0deg);
+  }
+
+  20% {
+    transform: rotate(-6deg);
+  }
+
+  60% {
+    transform: rotate(6deg);
+  }
+}
+
+@keyframes float {
+
+  0%,
+  100% {
+    transform: translateY(0px);
+  }
+
+  50% {
+    transform: translateY(-6px);
+  }
+}
+
+/* ── Hover underline draw effect for nav links ── */
+.nav-link {
+  position: relative;
+}
+
+.nav-link::after {
+  content: '';
+  position: absolute;
+  bottom: -2px;
+  left: 0;
+  width: 0;
+  height: 2px;
+  background: currentColor;
+  border-radius: 2px;
+  transition: width 0.3s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.nav-link:hover::after {
+  width: 100%;
+}
+
+/* ── Card hover lift ── */
+.card-lift {
+  transition: transform 0.22s cubic-bezier(0.22, 1, 0.36, 1),
+    box-shadow 0.22s cubic-bezier(0.22, 1, 0.36, 1),
+    border-color 0.22s ease;
+}
+
+.card-lift:hover {
+  transform: translateY(-5px);
 }
