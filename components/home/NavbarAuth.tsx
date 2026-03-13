@@ -65,18 +65,6 @@ export function NavbarAuth() {
   return (
     <div className="flex items-center gap-3">
 
-      {/* Upgrade to Pro — inline navbar button */}
-      <Link
-        href="/pro"
-        className="hidden sm:inline-flex items-center gap-2 h-[34px] px-4 text-sm font-black text-[#1C1917] bg-[#E9A319] border-2 border-[#1C1917]/50 shadow-[2px_2px_0_rgba(28,25,23,0.22)] hover:shadow-none hover:translate-y-px focus-visible:ring-4 focus-visible:ring-[#E9A319] focus-visible:ring-offset-2 transition-all sketchy-border whitespace-nowrap"
-      >
-        <span aria-hidden className="text-[#1C1917]">⚡</span>
-        Upgrade
-        <span className="text-[9px] font-black uppercase tracking-widest bg-[#1C1917] text-[#E9A319] px-1.5 py-0.5 leading-none">
-          PRO
-        </span>
-      </Link>
-
       {/* Avatar + dropdown */}
       <div className="relative" ref={dropdownRef}>
         <button

@@ -2,28 +2,24 @@ import { Navbar } from "@/components/home/Navbar";
 import { Hero } from "@/components/home/Hero";
 import { MarqueeTicker } from "@/components/home/MarqueeTicker";
 import { ImpactStats } from "@/components/home/ImpactStats";
-import { Categories } from "@/components/home/Categories";
 import { FilteredPatterns } from "@/components/home/FilteredPatterns";
+import { Categories } from "@/components/home/Categories";
 import { ImprovementGuides } from "@/components/home/ImprovementGuides";
-import { CommunityRanking } from "@/components/home/CommunityRanking";
 import { ToolsAndResources } from "@/components/home/ToolsAndResources";
-import { HallOfShame } from "@/components/home/HallOfShame";
 import { ContributeCTA } from "@/components/home/ContributeCTA";
 import { Footer } from "@/components/home/Footer";
 import { ScrollDistort } from "@/components/ui/ScrollDistort";
 
 /**
- * Home page — 10-section flow
- *  1.  Hero             → headline + stats
- *  2.  MarqueeTicker    → decorative
- *  3.  ImpactStats      → dark stats band (why bad UI costs money)
- *  4.  Anatomy          → annotated bad-UI diagram (dark)
- *  5.  Categories       → 12 pattern categories
- *  6.  FilteredPatterns → filterable antipattern library
- *  7.  ImprovementGuides→ 6 WCAG/Nielsen quick guides
- *  8.  ToolsAndResources→ 9 curated free tools
- *  9.  HallOfShame      → 3 documented patterns
- *  10. ContributeCTA    → submit a pattern
+ * Home page — 8-section flow
+ *  1. Hero              → headline + stats
+ *  2. MarqueeTicker     → decorative ticker
+ *  3. ImpactStats       → why bad UI costs money (dark)
+ *  4. FilteredPatterns  → searchable antipattern library
+ *  5. Categories        → 12 pattern categories
+ *  6. ImprovementGuides → WCAG/Nielsen quick guides
+ *  7. ToolsAndResources → curated free tools
+ *  8. ContributeCTA     → submit a pattern
  */
 export default function Home() {
   return (
@@ -47,13 +43,11 @@ export default function Home() {
 
           <Hero />
           <MarqueeTicker />
-          <ImpactStats />
-          <Categories />
-          <FilteredPatterns />
-          <ImprovementGuides />
-          <CommunityRanking />
+          <div id="impact"><ImpactStats /></div>
+          <div id="library"><FilteredPatterns /></div>
+          <div id="categories"><Categories /></div>
+          <div id="guides"><ImprovementGuides /></div>
           <ToolsAndResources />
-          <HallOfShame />
           <ContributeCTA />
         </main>
       </ScrollDistort>

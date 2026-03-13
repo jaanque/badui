@@ -7,61 +7,66 @@ import { MagnetButton } from "@/components/ui/MagnetButton";
  * Categories — the primary navigation.
  * Bigger cards with more visual presence.
  */
+
 export function Categories() {
   return (
     <section aria-labelledby="categories-heading" className="px-6 py-24 z-10 bg-[#FAFAF7]">
       <div className="max-w-7xl mx-auto">
 
         {/* Section header */}
-        <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-6 mb-12">
-          <div>
-            <p className="text-xs font-black uppercase tracking-widest text-[#1C1917]/52 mb-2">Browse by topic</p>
-            <h2 id="categories-heading" className="text-3xl md:text-4xl font-black -rotate-1">
+        <div className="flex flex-col md:flex-row md:items-end justify-between gap-10 mb-12">
+          <div className="max-w-xl">
+            <p className="text-[10px] font-black uppercase tracking-[0.25em] text-[#E9A319] mb-4">Database</p>
+            <h2 id="categories-heading" className="text-4xl md:text-6xl font-black text-[#1C1917] tracking-tight">
               Pattern Categories
             </h2>
+            <div className="flex mt-4">
+              <svg className="text-[#E9A319]/40 w-48 h-2" viewBox="0 0 100 10" preserveAspectRatio="none">
+                <path d="M2 5 L 98 5" fill="none" stroke="currentColor" strokeWidth="6" strokeLinecap="round" className="animate-draw" />
+              </svg>
+            </div>
           </div>
           <MagnetButton
             href="/categories"
-            aria-label="View all 12 antipattern categories"
-            className="group inline-flex items-center gap-2 px-5 py-2.5 text-sm font-black text-[#1C1917] border-2 border-[#1C1917]/25 shadow-[3px_3px_0_rgba(28,25,23,0.10)] hover:border-[#E9A319] hover:shadow-[3px_3px_0_rgba(233,163,25,0.22)] hover:bg-[#E9A319]/8 focus-visible:ring-4 focus-visible:ring-[#E9A319] focus-visible:ring-offset-2 transition-colors sketchy-border shrink-0"
+            className="group inline-flex items-center gap-3 px-8 py-4 text-xs font-black uppercase tracking-widest text-[#1C1917] border-2 border-[#1C1917] bg-white shadow-[6px_6px_0_rgba(28,25,23,0.1)] hover:shadow-none hover:translate-y-1 transition-all sketchy-border"
           >
-            View all
-            <ArrowRight className="size-4 group-hover:translate-x-0.5 transition-transform" strokeWidth={3} />
+            View Full Taxonomy
+            <ArrowRight className="size-4 group-hover:translate-x-1 transition-transform" strokeWidth={3} />
           </MagnetButton>
         </div>
 
-        {/* 3-col on desktop — bigger cards */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-px bg-[#1C1917]/10" role="list">
+        {/* Categories Grid */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8" role="list">
           {CATEGORIES.map((cat, i) => (
-            <article key={cat.slug} role="listitem">
+            <article key={cat.slug} role="listitem" className="relative group">
               <Link
                 href={`/category/${cat.slug}`}
-                aria-label={`${cat.title}: ${cat.description}`}
-                className="group flex items-start gap-5 bg-[#FAFAF7] p-7 hover:bg-[#F0EFE9] focus-visible:bg-[#F0EFE9] focus-visible:ring-inset focus-visible:ring-4 focus-visible:ring-[#E9A319] transition-colors outline-none"
+                className="block h-full bg-[#FAFAF7] border-2 border-[#1C1917]/10 p-10 hover:border-[#1C1917] hover:bg-[#F0EFE9] hover:shadow-[8px_8px_0_rgba(233,163,25,0.1)] transition-all duration-300 sketchy-border-2 outline-none"
               >
-                {/* Count + icon */}
-                <div className="flex flex-col items-center gap-2 shrink-0">
-                  <span className="text-xs font-black text-[#1C1917]/25 tabular-nums w-6 text-center">
-                    {String(i + 1).padStart(2, "0")}
-                  </span>
-                  <div
-                    className="w-10 h-10 flex items-center justify-center border-2 border-[#1C1917]/12 bg-[#F0EFE9] group-hover:border-[#E9A319] group-hover:bg-[#E9A319]/10 group-hover:rotate-12 transition-all duration-300 sketchy-border-2"
-                    aria-hidden
-                  >
-                    <cat.icon className="size-5 text-[#1C1917]/60 group-hover:text-[#1C1917] transition-colors" strokeWidth={2} />
+                <div className="flex flex-col gap-8">
+                  {/* Icon & Index */}
+                  <div className="flex items-center justify-between">
+                    <div className="w-14 h-14 flex items-center justify-center border-2 border-[#1C1917] bg-[#FAFAF7] group-hover:rotate-12 transition-transform duration-500 shadow-[4px_4px_0_rgba(28,25,23,0.1)] sketchy-border">
+                      <cat.icon className="size-7 text-[#1C1917]" strokeWidth={2.5} />
+                    </div>
+                    <span className="text-xs font-black text-[#1C1917]/20 tabular-nums">0{i + 1}</span>
                   </div>
-                </div>
 
-                {/* Text */}
-                <div className="flex-grow min-w-0 pt-0.5">
-                  <div className="flex items-start justify-between gap-3">
-                    <h3 className="text-base font-black leading-tight mb-1.5">{cat.title}</h3>
-                    <ArrowRight
-                      className="size-4 shrink-0 text-[#1C1917]/20 group-hover:text-[#E9A319] group-hover:translate-x-0.5 transition-all mt-0.5"
-                      strokeWidth={3}
-                    />
+                  {/* Copy */}
+                  <div>
+                    <h3 className="text-xl font-black text-[#1C1917] mb-3 group-hover:text-[#E9A319] transition-colors">
+                      {cat.title}
+                    </h3>
+                    <p className="text-sm text-[#1C1917]/60 font-medium leading-relaxed">
+                      {cat.description}
+                    </p>
                   </div>
-                  <p className="text-sm text-[#1C1917]/72 font-medium leading-relaxed">{cat.description}</p>
+
+                  {/* Bottom link */}
+                  <div className="pt-4 border-t-2 border-dashed border-[#1C1917]/5 flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-[#1C1917]/30 group-hover:text-[#1C1917] transition-all">
+                    Explore collection
+                    <ArrowRight className="size-3 group-hover:translate-x-1 transition-transform" />
+                  </div>
                 </div>
               </Link>
             </article>

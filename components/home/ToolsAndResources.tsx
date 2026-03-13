@@ -79,53 +79,72 @@ const CATEGORY_COLORS: Record<string, string> = {
   "Research":            "bg-[#F0EFE9] text-[#1C1917]/60 border-[#1C1917]/12",
 };
 
+function TapeDecoration({ corner = "top-left", rotation = 0 }: { corner?: "top-left" | "top-right", rotation?: number }) {
+  const baseRotation = corner === "top-left" ? -15 : 15;
+  const finalRotation = baseRotation + rotation;
+  
+  const styles = {
+    "top-left": "-top-3 -left-4",
+    "top-right": "-top-3 -right-4"
+  };
+
+  return (
+    <div 
+      className={`absolute w-16 h-8 bg-[#E9A319]/20 backdrop-blur-[1px] border border-[#1C1917]/5 z-20 pointer-events-none transition-transform group-hover:scale-110 ${styles[corner]}`} 
+      style={{ 
+        transform: `rotate(${finalRotation}deg)`,
+        clipPath: "polygon(5% 0%, 95% 2%, 100% 50%, 92% 98%, 8% 100%, 0% 55%, 4% 10%)" 
+      }} 
+    />
+  );
+}
+
 export function ToolsAndResources() {
   return (
     <section aria-labelledby="tools-heading" className="px-6 py-24 z-10 bg-[#FAFAF7]">
       <div className="max-w-7xl mx-auto">
 
         {/* Header */}
-        <div className="mb-12">
-          <p className="text-xs font-black uppercase tracking-widest text-[#1C1917]/52 mb-2">Free tools</p>
-          <h2 id="tools-heading" className="text-3xl md:text-4xl font-black rotate-1 inline-block mb-4">
-            Build Better. Test Better.
+        <div className="mb-10">
+          <p className="text-[10px] font-black uppercase tracking-[0.25em] text-[#E9A319] mb-4">Toolkit</p>
+          <h2 id="tools-heading" className="text-4xl md:text-6xl font-black text-[#1C1917] tracking-tight mb-6">
+            Build Better. <span className="text-[#1C1917]/30">Test Better.</span>
           </h2>
-          <p className="text-base text-[#1C1917]/72 font-medium max-w-xl">
-            The exact tools our editors use to find, validate, and document antipatterns.
-            All free.
+          <p className="text-xl text-[#1C1917]/60 font-medium max-w-2xl leading-relaxed">
+            A hand-picked collection of free tools that our editors use every day to find and document antipatterns.
           </p>
         </div>
 
         {/* Grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-px bg-[#1C1917]/8" role="list">
-          {TOOLS.map((tool) => (
-            <article key={tool.name} role="listitem" className="bg-[#FAFAF7]">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-10" role="list">
+          {TOOLS.map((tool, i) => (
+            <article key={tool.name} role="listitem" className="relative group">
+              <TapeDecoration corner={i % 2 === 0 ? "top-left" : "top-right"} />
               <a
                 href={tool.href}
                 target="_blank"
                 rel="noopener noreferrer"
-                aria-label={`${tool.name} — ${tool.category} (opens in new tab)`}
-                className="group flex flex-col h-full p-7 hover:bg-[#F0EFE9] focus-visible:bg-[#F0EFE9] focus-visible:ring-inset focus-visible:ring-4 focus-visible:ring-[#E9A319] transition-colors outline-none"
+                className="block h-full bg-white border-2 border-[#1C1917]/10 p-10 hover:border-[#E9A319] hover:-rotate-1 transition-all duration-300 shadow-[6px_6px_0_rgba(28,25,23,0.02)] hover:shadow-[10px_10px_0_rgba(233,163,25,0.1)] outline-none sketchy-border"
               >
                 {/* Category badge */}
-                <span className={`self-start text-[10px] font-black uppercase tracking-widest px-2 py-0.5 border mb-4 ${CATEGORY_COLORS[tool.category] ?? CATEGORY_COLORS["Standards"]}`}>
+                <span className={`inline-block text-[9px] font-black uppercase tracking-[0.15em] px-3 py-1 border-2 mb-8 ${CATEGORY_COLORS[tool.category] ?? CATEGORY_COLORS["Standards"]} sketchy-border-2`}>
                   {tool.category}
                 </span>
 
                 {/* Tool name */}
-                <h3 className="text-base font-black mb-2 group-hover:text-[#1C1917] group-hover:underline group-hover:decoration-wavy group-hover:decoration-[#E9A319] group-hover:underline-offset-3 transition-all flex-grow-0">
+                <h3 className="text-xl font-black text-[#1C1917] mb-4 group-hover:text-[#E9A319] transition-colors leading-tight">
                   {tool.name}
                 </h3>
 
                 {/* Description */}
-                <p className="text-sm text-[#1C1917]/72 font-medium leading-relaxed flex-grow">
+                <p className="text-[15px] text-[#1C1917]/60 font-medium leading-relaxed">
                   {tool.desc}
                 </p>
 
                 {/* External link indicator */}
-                <p className="mt-4 text-[10px] font-black uppercase tracking-widest text-[#1C1917]/35 group-hover:text-[#E9A319] transition-colors">
-                  Open tool ↗
-                </p>
+                <div className="mt-8 pt-6 border-t-2 border-dashed border-[#1C1917]/5 flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-[#1C1917]/20 group-hover:text-[#1C1917] transition-colors">
+                  Open Source Project ↗
+                </div>
               </a>
             </article>
           ))}

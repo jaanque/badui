@@ -32,6 +32,26 @@ export interface AntipatternItem {
   tilt: string;
 }
 
+export interface DbAntipattern {
+  id: number;
+  slug: string;
+  title: string;
+  excerpt: string;
+  category: string;
+  impact: "Critical" | "High" | "Medium" | "Low";
+  cover_url: string | null;
+  wcag_refs?: string[];
+  nielsen_refs?: string[];
+  code_fix?: string | null;
+  stat_line?: string | null;
+  why?: string | null;
+  bad_description?: string | null;
+  good_description?: string | null;
+  business_impact?: string | null;
+  pro_tip?: string | null;
+  user_story?: string | null;
+}
+
 export const CATEGORIES: Category[] = [
   { title: "Forms",               description: "Late validation, hidden labels, fields that wipe input on blur.",              icon: TextCursorInput, slug: "forms",          tilt: "-rotate-1" },
   { title: "Navigation",          description: "Hamburger menus hiding 90 % of the app, broken breadcrumbs.",                 icon: Navigation,      slug: "navigation",     tilt: "rotate-1"  },

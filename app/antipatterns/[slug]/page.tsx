@@ -1,253 +1,322 @@
 import Link from "next/link";
-import { ArrowLeft, AlertTriangle, CheckCircle, Code2, ExternalLink } from "lucide-react";
-import { HALL_OF_SHAME, RECENT_ANTIPATTERNS } from "@/components/home/data";
+import { ArrowLeft, AlertTriangle, CheckCircle, Code2, ExternalLink, Accessibility, MousePointer2 } from "lucide-react";
+import { createClient, createStaticClient } from "@/lib/supabase/server";
 import { notFound } from "next/navigation";
+import type { DbAntipattern } from "@/components/home/data";
 
-/* ─── Static data for the two example patterns ─────────────────────────── */
+/* ─── Impact Level Data ────────────────────────────────────── */
 
-const PATTERN_DETAILS: Record<string, {
-  title: string;
-  category: string;
-  impact: string;
-  wcag: string[];
-  nielsen: string[];
-  why: string;
-  statLine: string;
-  badDescription: string;
-  goodDescription: string;
-  codeFix: string;
-}> = {
-  "invisible-close": {
-    title: "The Invisible Close Button",
-    category: "Dark Patterns",
-    impact: "Critical",
-    wcag: ["1.4.3 — Contrast (Minimum)", "2.4.7 — Focus Visible"],
-    nielsen: ["#1 — Visibility of system status", "#6 — Recognition rather than recall"],
-    why: "A promotional overlay with a near-invisible × (white icon on light-grey) forces users to hunt for the exit. The cognitive cost of finding a way out is enough for most users to abandon the page rather than complete the primary action below.",
-    statLine: "99 % of users fail to close the modal on the first attempt (internal A/B, N=4,200).",
-    badDescription: "White × on a #E0E0E0 background. Contrast ratio: 1.3:1. WCAG requires 3:1 for UI components.",
-    goodDescription: "Dark-ink × with a clear 44 × 44 px touch target, visible border, and 'Close' text for screen readers. Contrast ratio: 12.6:1.",
-    codeFix: `// ❌ Bad — invisible close
-<button className="absolute top-2 right-2 text-white">×</button>
-
-// ✅ Fixed — visible, accessible, properly sized
-<button
-  aria-label="Close modal"
-  className="
-    absolute top-3 right-3
-    flex items-center justify-center
-    w-11 h-11                     /* 44px touch target */
-    rounded border-2 border-[#1C1917]/30
-    bg-white text-[#1C1917]
-    hover:bg-[#F0EFE9]
-    focus-visible:ring-4 focus-visible:ring-amber-400
-    transition-colors
-  "
->
-  <X className="size-5" strokeWidth={2.5} aria-hidden />
-</button>`,
+const IMPACT_CONFIG: Record<string, { label: string; color: string; bg: string; description: string }> = {
+  Critical: {
+    label: "Critical",
+    color: "text-[#1C1917]",
+    bg: "bg-[#E9A319]",
+    description: "Severe usability roadblock. High risk of immediate abandonment.",
   },
-  "password-validation": {
-    title: "Schizophrenic Password Validation",
-    category: "Forms",
-    impact: "High",
-    wcag: ["3.3.1 — Error Identification", "3.3.2 — Labels or Instructions"],
-    nielsen: ["#9 — Help users recognise, diagnose, fix errors", "#4 — Consistency and standards"],
-    why: "Requirements revealed only after the first failed submit force users into a guessing game. Each failed attempt erodes trust and increases the probability of abandonment. The average session shows 6.4 retries before success or drop-off.",
-    statLine: "6.4 average retries before success or abandonment. Drop-off rate: 34 % (Baymard Institute, 2023).",
-    badDescription: "Empty field with placeholder 'Password'. Requirements only visible after submit failure.",
-    goodDescription: "Requirements listed above the field from the start. Live validation on blur with inline success / error states.",
-    codeFix: `// ❌ Bad — requirements hidden until submit failure
-<input type="password" placeholder="Password" />
-
-// ✅ Fixed — requirements shown upfront, live validation
-const requirements = [
-  { label: "8+ characters",     test: (v: string) => v.length >= 8 },
-  { label: "One uppercase",     test: (v: string) => /[A-Z]/.test(v) },
-  { label: "One number",        test: (v: string) => /\\d/.test(v) },
-];
-
-<div>
-  <label htmlFor="pw" className="block text-sm font-bold mb-1">Password</label>
-  <input
-    id="pw"
-    type="password"
-    aria-describedby="pw-requirements"
-    onChange={(e) => setValue(e.target.value)}
-    className="w-full border-2 border-[#1C1917]/20 px-3 py-2
-               focus-visible:border-amber-400 focus-visible:ring-2
-               focus-visible:ring-amber-400/30"
-  />
-  <ul id="pw-requirements" className="mt-2 space-y-1">
-    {requirements.map((r) => (
-      <li key={r.label}
-        className={\`flex items-center gap-2 text-xs font-medium \${
-          r.test(value) ? "text-green-700" : "text-[#1C1917]/50"
-        }\`}
-        aria-live="polite"
-      >
-        <Check className="size-3.5" /> {r.label}
-      </li>
-    ))}
-  </ul>
-</div>`,
+  High: {
+    label: "High Impact",
+    color: "text-[#1C1917]",
+    bg: "bg-[#E9A319]/70",
+    description: "Major friction point. Significantly degrades user satisfaction.",
+  },
+  Medium: {
+    label: "Medium Impact",
+    color: "text-[#1C1917]/80",
+    bg: "bg-[#F0EFE9]",
+    description: "Consistent annoyance. Slows down users and erodes trust.",
+  },
+  Low: {
+    label: "Low Impact",
+    color: "text-[#1C1917]/60",
+    bg: "bg-transparent",
+    description: "Minor polish issue. Mostly aesthetic or edge-case friction.",
   },
 };
 
 /* ─── Page ────────────────────────────────────────────────────────────── */
 
-export default function AntipatternPage({ params }: { params: { slug: string } }) {
-  const detail = PATTERN_DETAILS[params.slug];
-  if (!detail) notFound();
+export default async function AntipatternPage({ params }: { params: Promise<{ slug: string }> }) {
+  const { slug } = await params;
+  const supabase = await createClient();
+  const { data: pattern } = await supabase
+    .from("antipatterns")
+    .select("*")
+    .eq("slug", slug)
+    .single();
 
-  const { title, category, impact, wcag, nielsen, why, statLine, badDescription, goodDescription, codeFix } = detail;
-  const isCritical = impact === "Critical";
+  if (!pattern) notFound();
+
+  const {
+    title,
+    category,
+    impact,
+    wcag_refs = [],
+    nielsen_refs = [],
+    why,
+    stat_line,
+    bad_description,
+    good_description,
+    code_fix,
+    business_impact,
+    pro_tip,
+    user_story
+  } = pattern as DbAntipattern;
+
+  const impactConfig = IMPACT_CONFIG[impact] ?? IMPACT_CONFIG.Medium;
 
   return (
-    <div className="min-h-screen bg-[#FAFAF7] text-[#1C1917]">
-
-      {/* Paper grain */}
-      <div aria-hidden className="fixed inset-0 pointer-events-none"
-        style={{ backgroundImage: "url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.72' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.022'/%3E%3C/svg%3E\")" }} />
+    <div className="min-h-screen bg-[#FAFAF7] text-[#1C1917] font-sans selection:bg-amber-100 selection:text-amber-900">
+      {/* Texture Layer */}
+      <div aria-hidden className="fixed inset-0 pointer-events-none opacity-[0.03]"
+        style={{ backgroundImage: "url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='100' height='100'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E\")" }} />
+      
+      {/* Grid Pattern Layer */}
+      <div aria-hidden className="fixed inset-0 pointer-events-none opacity-[0.015]"
+        style={{ backgroundImage: "radial-gradient(#1C1917 0.5px, transparent 0.5px)", backgroundSize: "24px 24px" }} />
 
       {/* Slim header */}
       <header className="sticky top-0 z-50 border-b-2 border-[#1C1917]/10 bg-[#FAFAF7]/95 backdrop-blur-md">
-        <div className="max-w-7xl mx-auto px-6 h-[54px] flex items-center justify-between gap-6">
+        <div className="max-w-7xl mx-auto px-6 h-[54px] flex items-center justify-between">
           <Link href="/" className="flex items-center gap-2 text-sm font-black text-[#1C1917]/50 hover:text-[#1C1917] transition-colors nav-link">
-            <ArrowLeft className="size-4" strokeWidth={3} /> badui.dev
+            <ArrowLeft className="size-4" strokeWidth={3} /> badui.dev / research
           </Link>
-          <div className="flex items-center gap-3">
-            <span className="text-xs font-black uppercase tracking-widest text-[#1C1917]/35 hidden sm:block">
-              {category}
-            </span>
-            <span className={`text-xs font-black uppercase tracking-widest px-2 py-0.5 border border-[#1C1917]/15 ${isCritical ? "bg-[#E9A319]" : "bg-[#F0EFE9]"}`}>
-              {impact} impact
-            </span>
+          <div className="flex items-center gap-4">
+             <span className="text-[10px] font-black uppercase tracking-widest text-[#1C1917]/30 tabular-nums">Ref: AP-{slug.slice(0,4).toUpperCase()}</span>
+             <div className="h-4 w-px bg-[#1C1917]/10" />
+             <span className="text-xs font-black uppercase tracking-widest text-[#1C1917]/40">{category}</span>
           </div>
         </div>
       </header>
 
-      <main id="main-content" className="max-w-7xl mx-auto px-6 py-16">
+      <main className="max-w-7xl mx-auto px-6 py-16 relative">
+        
+        {/* ── Section: Header / Blueprint ── */}
+        <div className="relative mb-24">
+          <div className="max-w-4xl relative z-10">
+            <p className="text-xs font-black uppercase tracking-[0.3em] text-[#E9A319] mb-4">Case Study / {category}</p>
+            <h1 className="text-[clamp(2.5rem,10vw,6rem)] font-black tracking-tighter leading-[0.85] mb-8 drop-shadow-[6px_6px_0_rgba(233,163,25,0.15)]">
+              {title}
+            </h1>
+            
+            <div className="flex flex-wrap items-center gap-6">
+               {/* Impact Stamp */}
+               <div className={`relative px-6 py-2 border-4 border-dashed inline-block rotate-[-2deg] ${impact === 'Critical' ? 'border-red-500/30 text-red-600' : 'border-amber-500/30 text-amber-600'}`}>
+                  <div className="absolute inset-0 bg-current opacity-[0.03] pointer-events-none" />
+                  <span className="text-sm font-black uppercase tracking-[0.2em]">{impact} Impact</span>
+                  {/* Mock Stamp Effect */}
+                  <div className="absolute -top-1 -right-1 size-2 rounded-full bg-current opacity-20" />
+                  <div className="absolute -bottom-1 -left-1 size-2 rounded-full bg-current opacity-20" />
+               </div>
 
-        {/* Title */}
-        <div className="max-w-3xl mb-14">
-          <p className="text-xs font-black uppercase tracking-widest text-[#1C1917]/35 mb-3">{category}</p>
-          <h1 className="text-[clamp(2rem,5vw,4rem)] font-black tracking-tighter leading-tight -rotate-1 mb-6">
-            {title}
-          </h1>
-          {/* Stat callout */}
-          <div className="inline-flex items-start gap-3 border-2 border-[#E9A319] bg-[#E9A319]/8 px-5 py-3 sketchy-border">
-            <AlertTriangle className="size-5 text-[#E9A319] shrink-0 mt-0.5" strokeWidth={2.5} aria-hidden />
-            <p className="text-sm font-bold text-[#1C1917]/70 leading-relaxed">{statLine}</p>
+               {stat_line && (
+                  <p className="text-sm font-bold text-[#1C1917]/50 max-w-sm leading-snug">
+                    <span className="mr-2 inline-block size-1.5 rounded-full bg-[#E9A319]" />
+                    {stat_line}
+                  </p>
+               )}
+            </div>
+          </div>
+
+          {/* Research Note Sticky */}
+          <div className="hidden lg:block absolute top-0 right-0 w-72 bg-white p-6 shadow-xl sketchy-border-3 rotate-2 hover:rotate-0 transition-transform duration-500">
+             <div className="size-3 bg-[#E9A319]/20 rounded-full absolute top-3 left-3" />
+             <h2 className="text-[10px] font-black uppercase tracking-widest text-[#1C1917]/30 mb-4">Researcher's Summary</h2>
+             <p className="text-sm font-bold text-[#1C1917]/70 leading-relaxed italic">
+               "{why}"
+             </p>
           </div>
         </div>
 
-        {/* ── Before / After ── */}
-        <section aria-labelledby="before-after-heading" className="mb-16">
-          <h2 id="before-after-heading" className="text-xl font-black mb-6 uppercase tracking-widest text-[#1C1917]/40">
-            Before / After
-          </h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        {/* ── Pod: The Observation Layer (Evidence) ── */}
+        <section className="mb-24 relative">
+          <div className="flex items-center gap-4 mb-10">
+             <div className="h-[2px] w-12 bg-[#1C1917]" />
+             <h2 className="text-sm font-black uppercase tracking-[0.4em] text-[#1C1917]/30 italic">01 / Observation</h2>
+          </div>
 
-            {/* BAD */}
-            <div className="border-2 border-[#1C1917]/18 bg-white sketchy-border overflow-hidden">
-              {/* Placeholder for screenshot */}
-              <div className="aspect-video bg-[#F0EFE9] flex items-center justify-center border-b-2 border-[#1C1917]/10 relative">
-                <div className="text-center">
-                  <span className="block text-4xl mb-2" aria-hidden>❌</span>
-                  <span className="text-xs font-black uppercase tracking-widest text-[#1C1917]/30">Screenshot / Demo</span>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-12 items-start">
+             {/* Problem Side */}
+             <div className="relative">
+                <div className="mb-4 flex items-center justify-between">
+                   <span className="text-xs font-black uppercase tracking-widest bg-[#1C1917]/10 px-3 py-1 rounded-full">Rejected State</span>
+                   <AlertTriangle className="size-4 text-red-500 opacity-50" />
                 </div>
-                <span className="absolute top-3 left-3 text-xs font-black uppercase tracking-widest bg-[#1C1917]/8 px-2 py-0.5">Before</span>
-              </div>
-              <div className="p-5">
-                <p className="text-sm font-medium text-[#1C1917]/60 leading-relaxed">{badDescription}</p>
-              </div>
-            </div>
+                <div className="border-2 border-[#1C1917]/15 bg-white p-1 shadow-sm sketchy-border group hover:border-red-500/30 transition-colors">
+                   <div className="aspect-[4/3] bg-[#F0EFE9] flex items-center justify-center relative overflow-hidden">
+                      <div className="absolute inset-0 opacity-10" style={{ backgroundImage: "repeating-linear-gradient(45deg, #000, #000 1px, transparent 1px, transparent 10px)" }} />
+                      <span className="text-4xl filter grayscale group-hover:grayscale-0 transition-all duration-700">💀</span>
+                   </div>
+                   <div className="p-6">
+                      <p className="text-sm font-bold text-[#1C1917]/60 leading-relaxed italic border-l-2 border-[#1C1917]/10 pl-4">
+                        {bad_description}
+                      </p>
+                   </div>
+                </div>
+                {/* Connector Arrow (Mock) */}
+                <div className="hidden md:block absolute -right-8 top-1/2 -translate-y-1/2 z-20">
+                   <div className="w-4 h-[2px] bg-[#E9A319] rotate-45 mb-4" />
+                   <div className="w-10 h-[2px] bg-[#E9A319]" />
+                   <div className="w-4 h-[2px] bg-[#E9A319] -rotate-45 mt-4" />
+                </div>
+             </div>
 
-            {/* GOOD */}
-            <div className="border-2 border-[#E9A319] bg-white sketchy-border-2 overflow-hidden shadow-[3px_3px_0_rgba(233,163,25,0.18)]">
-              <div className="aspect-video bg-[#E9A319]/5 flex items-center justify-center border-b-2 border-[#E9A319]/30 relative">
-                <div className="text-center">
-                  <CheckCircle className="size-10 text-[#E9A319] mx-auto mb-2" strokeWidth={1.5} aria-hidden />
-                  <span className="text-xs font-black uppercase tracking-widest text-[#1C1917]/30">Screenshot / Demo</span>
+             {/* Solution Side */}
+             <div className="relative mt-8 md:mt-0">
+                <div className="mb-4 flex items-center justify-between">
+                   <span className="text-xs font-black uppercase tracking-widest bg-[#E9A319]/20 text-[#E9A319] px-3 py-1 rounded-full">Optimal Flow</span>
+                   <CheckCircle className="size-4 text-[#E9A319] opacity-70" />
                 </div>
-                <span className="absolute top-3 left-3 text-xs font-black uppercase tracking-widest bg-[#E9A319]/20 px-2 py-0.5 text-[#1C1917]/60">After</span>
-              </div>
-              <div className="p-5">
-                <p className="text-sm font-medium text-[#1C1917]/60 leading-relaxed">{goodDescription}</p>
-              </div>
+                <div className="border-2 border-[#E9A319] bg-white p-1 shadow-[8px_8px_0_rgba(233,163,25,0.05)] sketchy-border-2 group hover:shadow-[12px_12px_0_rgba(233,163,25,0.08)] transition-all">
+                   <div className="aspect-[4/3] bg-amber-50 flex items-center justify-center">
+                      <CheckCircle className="size-16 text-[#E9A319] stroke-[1] animate-draw" />
+                   </div>
+                   <div className="p-6">
+                      <p className="text-sm font-bold text-[#1C1917]/80 leading-relaxed italic border-l-2 border-[#E9A319]/40 pl-4">
+                        {good_description}
+                      </p>
+                   </div>
+                </div>
+             </div>
+          </div>
+
+          {/* User Voice Bubble */}
+          {user_story && (
+            <div className="max-w-2xl mx-auto mt-16 bg-[#1C1917] text-[#FAFAF7] p-10 sketchy-border-3 relative">
+               <div className="absolute -top-6 left-1/2 -translate-x-1/2 size-12 bg-[#1C1917] rotate-45" />
+               <div className="relative z-10 italic font-medium text-lg leading-relaxed text-center text-[#FAFAF7]/80">
+                  "{user_story}"
+               </div>
+               <div className="mt-6 text-center">
+                  <span className="text-[10px] font-black uppercase tracking-[0.4em] text-white/30">— Anonymous User Report</span>
+               </div>
             </div>
+          )}
+        </section>
+
+        {/* ── Pod: The Justification Layer (Impact & Standards) ── */}
+        <section className="mb-24">
+           <div className="flex items-center gap-4 mb-10">
+             <div className="h-[2px] w-12 bg-[#1C1917]" />
+             <h2 className="text-sm font-black uppercase tracking-[0.4em] text-[#1C1917]/30 italic">02 / Justification</h2>
+          </div>
+
+          <div className="grid grid-cols-1 lg:grid-cols-5 gap-8">
+             {/* Business Consequences */}
+             <div className="lg:col-span-3 bg-white border-2 border-[#1C1917] p-10 sketchy-border flex flex-col justify-between shadow-[8px_8px_0_#1C191708]">
+                <div>
+                   <h3 className="text-xs font-black uppercase tracking-[0.2em] text-[#E9A319] mb-6">Commercial Risk Assessment</h3>
+                   <div className="flex gap-4 mb-8">
+                      <div className="size-2 bg-[#1C1917] rotate-45" />
+                      <p className="text-2xl font-black tracking-tight leading-tight">
+                        {business_impact}
+                      </p>
+                   </div>
+                </div>
+                <div className="grid grid-cols-2 gap-8 border-t-2 border-[#1C1917]/5 pt-8">
+                   <div>
+                      <span className="block text-[10px] font-black uppercase tracking-widest text-[#1C1917]/30 mb-2">Severity</span>
+                      <span className={`text-xs font-black uppercase px-2 py-1 ${impactConfig.bg} ${impactConfig.color}`}>{impact}</span>
+                   </div>
+                   <div>
+                      <span className="block text-[10px] font-black uppercase tracking-widest text-[#1C1917]/30 mb-2">Confidence Range</span>
+                      <span className="text-xs font-black uppercase">High / Documented</span>
+                   </div>
+                </div>
+             </div>
+
+             {/* Standards Shelf */}
+             <div className="lg:col-span-2 space-y-8">
+                <div className="bg-[#F0EFE9] p-8 sketchy-border-2 border-2 border-dashed border-[#1C1917]/10">
+                   <h3 className="text-xs font-black uppercase tracking-widest text-[#1C1917]/40 mb-6 flex items-center gap-2">
+                     <Accessibility className="size-3" /> Accessibility Check
+                   </h3>
+                   <ul className="space-y-4">
+                     {wcag_refs.map(r => (
+                        <li key={r} className="flex items-start gap-3 bg-white/50 p-3 text-xs font-bold border-l-2 border-[#E9A319]">
+                           {r}
+                        </li>
+                     ))}
+                   </ul>
+                </div>
+
+                <div className="bg-[#F0EFE9] p-8 sketchy-border border-2 border-dashed border-[#1C1917]/10">
+                   <h3 className="text-xs font-black uppercase tracking-widest text-[#1C1917]/40 mb-6 flex items-center gap-2">
+                     <MousePointer2 className="size-3" /> Heuristic Violation
+                   </h3>
+                   <ul className="space-y-4">
+                     {nielsen_refs.map(r => (
+                        <li key={r} className="flex items-start gap-3 bg-white/50 p-3 text-xs font-bold border-l-2 border-[#1C1917]">
+                           {r}
+                        </li>
+                     ))}
+                   </ul>
+                </div>
+             </div>
           </div>
         </section>
 
-        {/* ── Why it fails + WCAG ── */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-16">
-
-          {/* Why it fails */}
-          <section aria-labelledby="why-heading" className="md:col-span-2 border-2 border-[#1C1917]/15 bg-[#FAFAF7] p-7 sketchy-border-3">
-            <h2 id="why-heading" className="text-sm font-black uppercase tracking-widest text-[#1C1917]/38 mb-4">Why it fails</h2>
-            <p className="text-base font-medium text-[#1C1917]/65 leading-relaxed">{why}</p>
-          </section>
-
-          {/* Standards violated */}
-          <section aria-labelledby="standards-heading" className="border-2 border-[#1C1917]/15 bg-[#F0EFE9] p-7 sketchy-border">
-            <h2 id="standards-heading" className="text-sm font-black uppercase tracking-widest text-[#1C1917]/38 mb-4">Standards violated</h2>
-            <div className="mb-4">
-              <p className="text-[10px] font-black uppercase tracking-widest text-[#1C1917]/35 mb-2">WCAG 2.1</p>
-              <ul className="space-y-1.5">
-                {wcag.map((w) => (
-                  <li key={w} className="text-xs font-bold text-[#1C1917]/65 flex items-start gap-1.5">
-                    <span className="text-[#E9A319] mt-0.5" aria-hidden>▸</span> {w}
-                  </li>
-                ))}
-              </ul>
-            </div>
-            <div>
-              <p className="text-[10px] font-black uppercase tracking-widest text-[#1C1917]/35 mb-2">Nielsen Heuristics</p>
-              <ul className="space-y-1.5">
-                {nielsen.map((n) => (
-                  <li key={n} className="text-xs font-bold text-[#1C1917]/65 flex items-start gap-1.5">
-                    <span className="text-[#E9A319] mt-0.5" aria-hidden>▸</span> {n}
-                  </li>
-                ))}
-              </ul>
-            </div>
-          </section>
-        </div>
-
-        {/* ── Code Fix ── */}
-        <section aria-labelledby="code-heading" className="mb-16">
-          <div className="flex items-center gap-3 mb-4">
-            <Code2 className="size-5 text-[#1C1917]/40" strokeWidth={2} aria-hidden />
-            <h2 id="code-heading" className="text-sm font-black uppercase tracking-widest text-[#1C1917]/38">Code fix (React + Tailwind)</h2>
+        {/* ── Pod: The Solution Layer (Implementation) ── */}
+        <section className="mb-24">
+           <div className="flex items-center gap-4 mb-10">
+             <div className="h-[2px] w-12 bg-[#1C1917]" />
+             <h2 className="text-sm font-black uppercase tracking-[0.4em] text-[#1C1917]/30 italic">03 / Implementation</h2>
           </div>
-          <pre className="overflow-x-auto bg-[#1C1917] text-[#FAFAF7] p-6 text-xs leading-relaxed border-2 border-[#1C1917] sketchy-border-2 font-mono">
-            <code>{codeFix}</code>
-          </pre>
+
+          <div className="relative group mb-12">
+             <div className="absolute -inset-2 bg-gradient-to-r from-amber-200 to-amber-100 rounded-lg blur-xl opacity-20 group-hover:opacity-40 transition duration-1000" />
+             
+             {/* Sticky Note on Code */}
+             {pro_tip && (
+               <div className="absolute -top-12 right-12 z-20 w-56 bg-amber-100 p-5 shadow-xl rotate-3 group-hover:rotate-1 transition-transform cursor-default border-t-[8px] border-amber-300">
+                  <span className="text-[10px] font-black uppercase tracking-widest text-amber-700/60 block mb-2 underline decoration-dashed underline-offset-4">Pro Tip</span>
+                  <p className="text-xs font-black text-amber-900/80 leading-relaxed italic">
+                    {pro_tip}
+                  </p>
+               </div>
+             )}
+
+             <div className="relative bg-[#1C1917] p-1 shadow-2xl sketchy-border overflow-hidden">
+                <div className="flex items-center justify-between px-6 py-4 bg-[#1C1917]/50 border-b border-white/5">
+                   <div className="flex gap-1.5">
+                      <div className="size-2 rounded-full bg-red-500/50" />
+                      <div className="size-2 rounded-full bg-amber-500/50" />
+                      <div className="size-2 rounded-full bg-green-500/50" />
+                   </div>
+                   <span className="text-[10px] font-black uppercase tracking-widest text-white/30">badui_fix.tsx</span>
+                </div>
+                <pre className="p-8 text-[13px] text-[#FAFAF7] font-mono leading-relaxed overflow-x-auto whitespace-pre-wrap">
+                   <code>{code_fix}</code>
+                </pre>
+             </div>
+          </div>
         </section>
 
-        {/* ── Footer nav ── */}
-        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 border-t-2 border-[#1C1917]/10 pt-10">
-          <Link href="/antipatterns"
-            className="group inline-flex items-center gap-2 text-sm font-black text-[#1C1917]/45 hover:text-[#1C1917] nav-link transition-colors focus-visible:ring-4 focus-visible:ring-[#E9A319] focus-visible:ring-offset-2">
-            <ArrowLeft className="size-4 group-hover:-translate-x-0.5 transition-transform" strokeWidth={3} /> Back to library
-          </Link>
-          <Link href="/submit"
-            className="inline-flex items-center gap-2 h-10 px-5 text-sm font-black bg-[#E9A319] text-[#1C1917] border-2 border-[#1C1917]/50 shadow-[2px_2px_0_rgba(28,25,23,0.18)] hover:shadow-none hover:translate-y-px transition-all sketchy-border focus-visible:ring-4 focus-visible:ring-[#E9A319] focus-visible:ring-offset-2">
-            Suggest an improvement <ExternalLink className="size-3.5" strokeWidth={2.5} aria-hidden />
-          </Link>
-        </div>
+        {/* ── Footer / Navigation ── */}
+        <footer className="pt-16 border-t-2 border-[#1C1917]/10 flex flex-col sm:flex-row items-center justify-between gap-10">
+           <Link href="/" className="group flex flex-col items-start focus-visible:ring-4 focus-visible:ring-amber-400 p-2 rounded transition-all">
+              <span className="text-[10px] font-black uppercase tracking-widest text-[#1C1917]/20 mb-1">Catalog</span>
+              <span className="text-2xl font-black inline-flex items-center gap-3">
+                 <ArrowLeft className="size-5 group-hover:-translate-x-1.5 transition-transform" strokeWidth={3} /> Library
+              </span>
+           </Link>
+
+           <div className="flex items-center gap-6">
+              <button className="text-[10px] font-black uppercase tracking-[0.2em] text-[#1C1917]/30 hover:text-[#1C1917] transition-colors">
+                 Report Update
+              </button>
+              <Link href="/" className="bg-[#1C1917] text-white px-8 py-3 font-black uppercase tracking-widest text-xs sketchy-border hover:bg-[#E9A319] hover:text-[#1C1917] transition-all">
+                 Next Case Study
+              </Link>
+           </div>
+        </footer>
 
       </main>
     </div>
   );
 }
 
-/* ─── Static params for build ──────────────────────────────────────────── */
-export function generateStaticParams() {
-  return [
-    ...Object.keys(PATTERN_DETAILS).map((slug) => ({ slug })),
-    ...RECENT_ANTIPATTERNS.map((p) => ({ slug: p.slug })),
-    ...HALL_OF_SHAME.map((p) => ({ slug: p.slug })),
-  ];
+export async function generateStaticParams() {
+  const supabase = createStaticClient();
+  const { data } = await supabase.from("antipatterns").select("slug");
+  return (data ?? []).map((p) => ({ slug: p.slug }));
 }

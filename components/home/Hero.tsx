@@ -1,258 +1,129 @@
+"use client";
+
+import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
-import { ArrowRight } from "lucide-react";
+import { ArrowRight, Sparkles } from "lucide-react";
+import { MagnetButton } from "@/components/ui/MagnetButton";
 
-const STATS = [
-  { value: "120+", label: "Antipatterns" },
-  { value: "12",   label: "Categories"   },
-  { value: "47",   label: "Code fixes"   },
-  { value: "Free", label: "Always"       },
-];
-
-const CARDS = [
-  {
-    n:        "01",
-    title:    "Invisible close button",
-    category: "Feedback",
-    stat:     "Contrast 1.3:1",
-    severity: 3,
-    bar:      88,
-    tilt:     "rotate-2",
-    accent:   "#E9A319",
-    icon: (
-      <svg viewBox="0 0 20 20" fill="none" className="w-4 h-4" aria-hidden>
-        <circle cx="10" cy="10" r="8" stroke="currentColor" strokeWidth="1.6"/>
-        <path d="M7 7l6 6M13 7l-6 6" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round"/>
+function SketchyBloom({ className = "" }: { className?: string }) {
+  return (
+    <div className={`pointer-events-none ${className}`} aria-hidden="true">
+      <svg viewBox="0 0 24 24" fill="currentColor" className="size-6 text-[#E9A319] animate-pulse">
+        <path d="M12 2C12 2 12.5 8 15 10.5C17.5 13 22 12 22 12C22 12 17.5 11 15 8.5C12.5 6 12 2 12 2Z" />
+        <path d="M12 22C12 22 11.5 16 9 13.5C6.5 11 2 12 2 12C2 12 6.5 13 9 15.5C11.5 18 12 22 12 22Z" />
       </svg>
-    ),
-    preview: (
-      /* Tiny modal mockup — close button invisible */
-      <div className="relative bg-[#F3F4F6] border border-[#E5E7EB] p-2 h-14 flex items-start justify-between">
-        <div className="space-y-1 pt-0.5">
-          <div className="h-1.5 w-20 bg-[#9CA3AF]/70 rounded" />
-          <div className="h-1 w-14 bg-[#9CA3AF]/40 rounded" />
-        </div>
-        {/* × button — white on white */}
-        <div className="w-5 h-5 bg-white border border-[#F3F4F6] flex items-center justify-center text-[9px] text-[#F3F4F6] font-black">×</div>
-      </div>
-    ),
-  },
-  {
-    n:        "02",
-    title:    "Ambiguous error messages",
-    category: "Copywriting",
-    stat:     "+67% rage-clicks",
-    severity: 3,
-    bar:      72,
-    tilt:     "-rotate-1",
-    accent:   "#1C1917",
-    icon: (
-      <svg viewBox="0 0 20 20" fill="none" className="w-4 h-4" aria-hidden>
-        <path d="M10 3l7.5 13H2.5L10 3z" stroke="currentColor" strokeWidth="1.6" strokeLinejoin="round"/>
-        <path d="M10 8v4M10 14.5v.5" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round"/>
-      </svg>
-    ),
-    preview: (
-      <div className="bg-[#FEF2F2] border border-[#FECACA] p-2 h-14 flex flex-col justify-center gap-1">
-        <div className="flex items-center gap-1">
-          <div className="w-2 h-2 rounded-full bg-[#EF4444]/50" />
-          <div className="h-1.5 w-24 bg-[#EF4444]/30 rounded" />
-        </div>
-        <div className="h-1 w-32 bg-[#9CA3AF]/40 rounded" />
-        <div className="h-1 w-20 bg-[#9CA3AF]/30 rounded" />
-      </div>
-    ),
-  },
-  {
-    n:        "03",
-    title:    "Disabled submit button",
-    category: "Forms",
-    stat:     "18% drop-off",
-    severity: 2,
-    bar:      55,
-    tilt:     "rotate-1",
-    accent:   "#E9A319",
-    icon: (
-      <svg viewBox="0 0 20 20" fill="none" className="w-4 h-4" aria-hidden>
-        <rect x="2" y="6" width="16" height="10" rx="2" stroke="currentColor" strokeWidth="1.6"/>
-        <path d="M6 6V5a4 4 0 018 0v1" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round"/>
-      </svg>
-    ),
-    preview: (
-      <div className="bg-[#F9FAFB] p-2 h-14 flex flex-col justify-between">
-        <div className="flex gap-1.5">
-          <div className="h-6 flex-1 bg-white border border-[#D1D5DB] rounded" />
-          <div className="h-6 flex-1 bg-white border border-[#D1D5DB] rounded" />
-        </div>
-        <div className="h-6 w-full bg-[#D1D5DB] rounded flex items-center justify-center">
-          <div className="h-1.5 w-12 bg-[#9CA3AF]/60 rounded" />
-        </div>
-      </div>
-    ),
-  },
-  {
-    n:        "04",
-    title:    "Scroll-jacked hero",
-    category: "Navigation",
-    stat:     "48% bounce rate",
-    severity: 2,
-    bar:      62,
-    tilt:     "-rotate-2",
-    accent:   "#1C1917",
-    icon: (
-      <svg viewBox="0 0 20 20" fill="none" className="w-4 h-4" aria-hidden>
-        <path d="M3 8h14M8 3l-5 5 5 5M12 3l5 5-5 5" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"/>
-      </svg>
-    ),
-    preview: (
-      <div className="bg-[#1C1917] p-2 h-14 flex items-center justify-between">
-        <div className="space-y-1">
-          <div className="h-1.5 w-16 bg-[#FAFAF7]/30 rounded" />
-          <div className="h-1 w-10 bg-[#FAFAF7]/15 rounded" />
-        </div>
-        <div className="flex gap-0.5">
-          {[0,1,2,3].map(i => (
-            <div key={i} className={`w-1 rounded-full ${i === 1 ? "h-6 bg-[#E9A319]" : "h-3 bg-[#FAFAF7]/20"}`} />
-          ))}
-        </div>
-      </div>
-    ),
-  },
-];
+    </div>
+  );
+}
 
 export function Hero() {
+  const containerRef = useRef<HTMLDivElement>(null);
+  const [mousePos, setMousePos] = useState({ x: 50, y: 50 });
+  const [targetPos, setTargetPos] = useState({ x: 50, y: 50 });
+
+  useEffect(() => {
+    let animationFrameId: number;
+    const updatePos = () => {
+      setMousePos(prev => ({
+        x: prev.x + (targetPos.x - prev.x) * 0.1,
+        y: prev.y + (targetPos.y - prev.y) * 0.1,
+      }));
+      animationFrameId = requestAnimationFrame(updatePos);
+    };
+    animationFrameId = requestAnimationFrame(updatePos);
+    return () => cancelAnimationFrame(animationFrameId);
+  }, [targetPos]);
+
+  useEffect(() => {
+    const handleMouseMove = (e: MouseEvent) => {
+      if (!containerRef.current) return;
+      const rect = containerRef.current.getBoundingClientRect();
+      const x = ((e.clientX - rect.left) / rect.width) * 100;
+      const y = ((e.clientY - rect.top) / rect.height) * 100;
+      setTargetPos({ x, y });
+    };
+    window.addEventListener("mousemove", handleMouseMove);
+    return () => window.removeEventListener("mousemove", handleMouseMove);
+  }, []);
+
   return (
     <section
+      ref={containerRef}
       aria-labelledby="hero-heading"
-      className="relative z-10 w-full max-w-7xl mx-auto px-6 pt-16 pb-20"
+      className="relative w-full pt-16 pb-20 overflow-hidden bg-[#FAFAF7]"
     >
-      <div className="grid grid-cols-1 lg:grid-cols-[1fr_420px] xl:grid-cols-[1fr_480px] gap-12 xl:gap-16 items-center">
+      {/* Decorative full-width light leaks */}
+      <div className="absolute top-0 left-1/4 w-96 h-96 bg-[#E9A319]/5 blur-[120px] rounded-full pointer-events-none" />
+      <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-[#1C1917]/5 blur-[120px] rounded-full pointer-events-none" />
 
-        {/* ── Left: copy ── */}
-        <div>
-          <div
-            role="status"
-            aria-label="Library updated March 2026"
-            className="animate-fade-up mb-7 inline-flex items-center gap-2 border border-[#1C1917]/22 bg-[#F0EFE9] px-4 py-1.5 text-[11px] font-black uppercase tracking-widest"
-          >
-            <span className="relative flex h-1.5 w-1.5" aria-hidden>
-              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#E9A319] opacity-80" />
-              <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-[#E9A319]" />
-            </span>
-            Updated March 2026 · 120+ entries
-          </div>
+      {/* Reactive Spotlight Layer */}
+      <div
+        className="absolute inset-0 pointer-events-none transition-opacity duration-1000"
+        style={{
+          background: `radial-gradient(circle 600px at ${mousePos.x}% ${mousePos.y}%, rgba(233, 163, 25, 0.12), transparent 80%)`,
+        }}
+        aria-hidden="true"
+      />
 
-          <h1
-            id="hero-heading"
-            className="animate-fade-up-delay-1 text-[clamp(3rem,6.5vw,6.5rem)] font-black tracking-tighter leading-[0.88] text-[#1C1917] -rotate-1"
-          >
-            The UI<br />Antipattern<br />Library.
-          </h1>
+      <div className="relative z-10 w-full max-w-7xl mx-auto px-6">
+        <div className="flex flex-col items-center text-center">
+          <div className="max-w-4xl relative">
 
-          <div className="animate-fade-up-delay-1">
-            <svg aria-hidden className="text-[#E9A319]/70 w-[clamp(160px,50%,340px)] mt-2"
-              viewBox="0 0 340 12" fill="none" preserveAspectRatio="none">
-              <path className="animate-draw" d="M2 9 C50 2,100 12,170 7 S260 1,338 8"
-                stroke="currentColor" strokeWidth="3" strokeLinecap="round" />
-            </svg>
-          </div>
-
-          <p className="animate-fade-up-delay-2 mt-7 text-lg md:text-xl font-semibold text-[#1C1917]/78 max-w-md leading-relaxed">
-            The definitive reference catalog for frontend developers, designers
-            and product teams. Every entry includes WCAG analysis, measured
-            business impact, and production-ready code fixes.
-          </p>
-
-          <div className="animate-fade-up-delay-3 mt-8 flex flex-col sm:flex-row gap-3">
-            <Link href="/categories" aria-label="Explore all UI antipattern categories"
-              className="group inline-flex items-center justify-center gap-2 h-12 px-7 text-base font-black bg-[#E9A319] text-[#1C1917] border-2 border-[#1C1917]/50 shadow-[3px_3px_0_rgba(28,25,23,0.18)] hover:shadow-none hover:translate-y-0.5 focus-visible:ring-4 focus-visible:ring-[#E9A319] focus-visible:ring-offset-2 transition-all sketchy-border">
-              Browse the catalog
-              <ArrowRight className="size-4 group-hover:translate-x-0.5 transition-transform" strokeWidth={3} />
-            </Link>
-            <Link href="/submit" aria-label="Submit a UI antipattern to the library"
-              className="group inline-flex items-center justify-center gap-2 h-12 px-7 text-base font-black bg-transparent hover:bg-[#1C1917]/[0.04] text-[#1C1917] border-2 border-[#1C1917]/22 shadow-[3px_3px_0_rgba(28,25,23,0.08)] hover:shadow-none hover:translate-y-0.5 focus-visible:ring-4 focus-visible:ring-[#1C1917]/30 focus-visible:ring-offset-2 transition-all sketchy-border-2">
-              Submit a pattern
-            </Link>
-          </div>
-
-          <div className="animate-fade-up-delay-4 mt-12 grid grid-cols-4 gap-0 max-w-sm border-2 border-[#1C1917]/12 divide-x-2 divide-[#1C1917]/12">
-            {STATS.map((s) => (
-              <div key={s.label} className="flex flex-col items-center py-4 px-1 text-center">
-                <span className="text-xl md:text-2xl font-black tracking-tight text-[#1C1917]">{s.value}</span>
-                <span className="text-[9px] font-black uppercase tracking-widest text-[#1C1917]/42 mt-0.5 leading-tight">{s.label}</span>
-              </div>
-            ))}
-          </div>
-        </div>
-
-        {/* ── Right: floating cards ── */}
-        <div className="hidden lg:block relative h-[510px] animate-fade-up-delay-3" aria-hidden>
-          {CARDS.map((card, i) => (
             <div
-              key={card.title}
-              className={`absolute w-[260px] xl:w-[286px] border-2 border-[#1C1917]/16 bg-[#FAFAF7] shadow-[4px_4px_0_rgba(28,25,23,0.10)] hover:shadow-[6px_6px_0_rgba(28,25,23,0.14)] hover:-translate-y-1 ${card.tilt} sketchy-border transition-all duration-200`}
-              style={{ top: `${i * 118}px`, marginLeft: i % 2 === 0 ? "0px" : "52px" }}
+              role="status"
+              className="animate-fade-up mb-8 inline-flex items-center gap-3 border-2 border-[#1C1917]/10 bg-[#F0EFE9] px-5 py-2 text-[11px] font-black uppercase tracking-[0.25em] text-[#1C1917]/60 shadow-[4px_4px_0_rgba(28,25,23,0.05)] sketchy-border"
             >
-              {/* Header */}
-              <div
-                className="px-3 py-2 flex items-center justify-between border-b-2 border-[#1C1917]/10"
-                style={{ background: card.accent === "#E9A319" ? "#E9A319" : "#1C1917" }}
-              >
-                <div className="flex items-center gap-1.5"
-                  style={{ color: card.accent === "#E9A319" ? "#1C1917" : "#FAFAF7" }}>
-                  {card.icon}
-                  <span className="text-[9px] font-black uppercase tracking-widest opacity-70">
-                    {card.category}
-                  </span>
-                </div>
-                <span
-                  className="text-[9px] font-black px-2 py-0.5 uppercase tracking-wide"
-                  style={{
-                    background: card.accent === "#E9A319" ? "#1C1917" : "#E9A319",
-                    color:      card.accent === "#E9A319" ? "#FAFAF7"  : "#1C1917",
-                  }}
-                >
-                  {card.stat}
+              <Sparkles className="size-3.5 text-[#E9A319]" fill="currentColor" />
+              Over 200 Antipatterns Documented
+            </div>
+
+            <h1
+              id="hero-heading"
+              className="animate-fade-up-delay-1 flex flex-col items-center text-[clamp(3.5rem,8vw,8.5rem)] font-black tracking-tighter leading-none text-[#1C1917] select-none"
+            >
+              <div className="flex items-center gap-4">
+                <span className="inline-block hover:rotate-2 transition-transform duration-500">The</span>
+                <span className="inline-block relative">
+                  UI
+                  <svg className="absolute -bottom-1 md:-bottom-2 left-0 w-full h-3 text-[#E9A319]/80" viewBox="0 0 100 10" preserveAspectRatio="none">
+                    <path d="M2 8 C 30 2, 70 12, 98 4" fill="none" stroke="currentColor" strokeWidth="5" strokeLinecap="round" className="animate-draw" />
+                  </svg>
                 </span>
               </div>
-
-              {/* Body */}
-              <div className="p-3">
-                {/* Number + title */}
-                <div className="flex items-start gap-2 mb-2.5">
-                  <span className="text-[9px] font-black text-[#E9A319] mt-0.5 tabular-nums">{card.n}</span>
-                  <p className="text-xs font-black text-[#1C1917] leading-snug">{card.title}</p>
-                </div>
-
-                {/* Mini UI preview */}
-                <div className="mb-2.5 overflow-hidden border border-[#1C1917]/10">
-                  {card.preview}
-                </div>
-
-                {/* Impact bar */}
-                <div className="flex items-center gap-2">
-                  <div className="flex-1 h-1 bg-[#1C1917]/8 rounded-full overflow-hidden">
-                    <div className="h-full bg-[#E9A319] rounded-full" style={{ width: `${card.bar}%` }} />
-                  </div>
-                  {/* Severity dots */}
-                  <div className="flex gap-0.5 shrink-0">
-                    {[0,1,2].map(d => (
-                      <div key={d} className={`w-1.5 h-1.5 rounded-full ${d < card.severity ? "bg-[#E9A319]" : "bg-[#1C1917]/12"}`} />
-                    ))}
-                  </div>
-                </div>
+              
+              <div className="relative flex flex-col items-end -mt-[0.05em]">
+                <span className="inline-block -rotate-1 hover:rotate-0 transition-transform duration-500 text-[#1C1917]/90 italic font-medium font-serif px-2">
+                  Antipattern
+                </span>
+                <span className="text-[0.38em] tracking-normal -mt-[0.3em] mr-4 hover:rotate-2 transition-transform duration-500">
+                  Library.
+                </span>
               </div>
+            </h1>
+
+            <p className="animate-fade-up-delay-2 mt-8 text-xl md:text-2xl font-semibold text-[#1C1917]/65 max-w-2xl mx-auto leading-[1.5]">
+              Stop shipping broken experiences. Our research-backed catalog
+              exposes the <span className="text-[#1C1917] font-black">dark patterns</span> and <span className="text-[#1C1917] font-black underline decoration-wavy decoration-[#E9A319]/40 underline-offset-4">accessibility fails</span> killing your conversion rate.
+            </p>
+
+            <div className="animate-fade-up-delay-3 mt-12 flex flex-wrap gap-5 justify-center">
+              <MagnetButton
+                href="/library"
+                className="group inline-flex items-center justify-center gap-3 h-16 px-10 text-lg font-black bg-[#1C1917] text-[#FAFAF7] border-2 border-[#1C1917] shadow-[6px_6px_0_rgba(233,163,25,0.4)] hover:shadow-none hover:translate-y-1 transition-all sketchy-border"
+              >
+                Explore Archive
+                <ArrowRight className="size-5 group-hover:translate-x-1.5 transition-transform" strokeWidth={3} />
+              </MagnetButton>
+
+              <Link
+                href="/categories"
+                className="group inline-flex items-center justify-center gap-3 h-16 px-10 text-lg font-black bg-white text-[#1C1917] border-2 border-[#1C1917]/20 shadow-[6px_6px_0_rgba(28,25,23,0.06)] hover:shadow-none hover:translate-y-1 transition-all sketchy-border-2"
+              >
+                Browse Taxonomy
+              </Link>
             </div>
-          ))}
-
-          {/* Dashed annotation arrow */}
-          <svg className="absolute bottom-4 right-2 text-[#E9A319]/45 w-20 animate-float-slow"
-            viewBox="0 0 70 55" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden>
-            <path d="M4 51 C12 35, 38 18, 66 3" stroke="currentColor" strokeWidth="1.8"
-              strokeLinecap="round" strokeDasharray="3 4" />
-            <circle cx="66" cy="3" r="2.5" fill="currentColor" />
-          </svg>
+          </div>
         </div>
-
       </div>
     </section>
   );

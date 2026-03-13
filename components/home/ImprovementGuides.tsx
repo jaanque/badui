@@ -57,78 +57,82 @@ const GUIDES = [
  * "How to improve your UI" — quick-reference accessibility & best-practice guides.
  * Gives the site editorial depth beyond just documenting bad examples.
  */
+function WavyUnderline() {
+  return (
+    <svg className="absolute -bottom-1 left-0 w-full h-2 text-[#E9A319]/40" viewBox="0 0 100 10" preserveAspectRatio="none">
+      <path d="M0 5 Q 12.5 0, 25 5 T 50 5 T 75 5 T 100 5" fill="none" stroke="currentColor" strokeWidth="4" strokeLinecap="round" />
+    </svg>
+  );
+}
+
 export function ImprovementGuides() {
   return (
     <section aria-labelledby="guides-heading" className="px-6 py-24 z-10 bg-[#FAFAF7]">
       <div className="max-w-7xl mx-auto">
 
         {/* Header */}
-        <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-6 mb-12">
-          <div>
-            <p className="text-xs font-black uppercase tracking-widest text-[#1C1917]/35 mb-2">Quick reference</p>
-            <h2 id="guides-heading" className="text-3xl md:text-4xl font-black -rotate-1">
+        <div className="flex flex-col md:flex-row md:items-end justify-between gap-10 mb-12">
+          <div className="max-w-2xl">
+            <p className="text-[10px] font-black uppercase tracking-[0.25em] text-[#E9A319] mb-4">Methodology</p>
+            <h2 id="guides-heading" className="text-4xl md:text-6xl font-black text-[#1C1917] tracking-tight">
               How to Improve Your UI
             </h2>
-            <p className="mt-3 text-base text-[#1C1917]/72 font-medium max-w-xl">
-              Six foundational practices, each mapped to a WCAG criterion or Nielsen heuristic —
-              the fastest way to lift quality across any product.
+            <p className="mt-6 text-xl text-[#1C1917]/60 font-medium leading-relaxed">
+              Six foundational practices mapped to WCAG 2.1 — the fastest way to lift quality across any digital product.
             </p>
           </div>
           <MagnetButton
             href="/guides"
-            aria-label="View all improvement guides"
-            className="group inline-flex items-center gap-2 px-5 py-2.5 text-sm font-black text-[#1C1917] border-2 border-[#1C1917]/25 shadow-[3px_3px_0_rgba(28,25,23,0.10)] hover:border-[#E9A319] hover:shadow-[3px_3px_0_rgba(233,163,25,0.22)] hover:bg-[#E9A319]/8 focus-visible:ring-4 focus-visible:ring-[#E9A319] focus-visible:ring-offset-2 transition-colors sketchy-border shrink-0"
+            className="group inline-flex items-center gap-3 px-8 py-4 text-xs font-black uppercase tracking-widest text-[#FAFAF7] border-2 border-[#1C1917] bg-[#1C1917] shadow-[6px_6px_0_rgba(233,163,25,0.4)] hover:shadow-none hover:translate-y-1 transition-all sketchy-border"
           >
-            All guides
-            <ArrowRight className="size-4 group-hover:translate-x-0.5 transition-transform" strokeWidth={3} />
+            All Best Practices
+            <ArrowRight className="size-4 group-hover:translate-x-1 transition-transform" strokeWidth={3} />
           </MagnetButton>
         </div>
 
-        {/* Guide cards — 2-col layout, each with rules checklist */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-px bg-[#1C1917]/8" role="list">
+        {/* Guide cards — 3-col layout */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8" role="list">
           {GUIDES.map((guide) => (
-            <article key={guide.slug} role="listitem" className="bg-[#FAFAF7]">
+            <article key={guide.slug} role="listitem" className="bg-white border-2 border-[#1C1917]/10 p-8 hover:border-[#1C1917] transition-all duration-300 shadow-[4px_4px_0_rgba(28,25,23,0.03)] hover:shadow-[8px_8px_0_rgba(28,25,23,0.06)] group/card sketchy-border-2">
               <Link
                 href={`/guides/${guide.slug}`}
-                aria-label={`${guide.title} — ${guide.standard}`}
-                className="group flex flex-col h-full p-7 hover:bg-[#F0EFE9] focus-visible:bg-[#F0EFE9] focus-visible:ring-inset focus-visible:ring-4 focus-visible:ring-[#E9A319] transition-colors outline-none"
+                className="flex flex-col h-full outline-none"
               >
                 {/* Top: number + standard badge */}
-                <div className="flex items-center justify-between mb-5">
-                  <span className="text-xs font-black text-[#1C1917]/22 tabular-nums">{guide.number}</span>
-                  <span className="text-[10px] font-black uppercase tracking-widest bg-[#E9A319]/15 border border-[#E9A319]/40 px-2 py-0.5 text-[#1C1917]/70">
+                <div className="flex items-center justify-between mb-8">
+                  <span className="text-sm font-black text-[#1C1917]/15 tabular-nums">Ref. {guide.number}</span>
+                  <span className="text-[9px] font-black uppercase tracking-widest bg-[#F0EFE9] border-2 border-[#1C1917]/5 px-3 py-1 text-[#1C1917]/50 sketchy-border">
                     {guide.standard}
                   </span>
                 </div>
 
                 {/* Title */}
-                <h3 className="text-lg font-black mb-3 group-hover:underline group-hover:decoration-wavy group-hover:decoration-[#E9A319] group-hover:underline-offset-3 transition-all">
+                <h3 className="text-2xl font-black text-[#1C1917] mb-4 relative inline-block self-start group-hover/card:text-[#E9A319] transition-colors">
                   {guide.title}
+                  <WavyUnderline />
                 </h3>
 
                 {/* Quick rule */}
-                <p className="text-sm text-[#1C1917]/75 font-medium leading-relaxed mb-5 flex-grow">
+                <p className="text-base text-[#1C1917]/70 font-medium leading-relaxed mb-8 flex-grow">
                   {guide.quick}
                 </p>
 
                 {/* Checklist */}
-                <ul className="space-y-1.5 mb-5">
+                <ul className="space-y-3 mb-8 bg-[#F0EFE9]/30 p-5 border-2 border-[#1C1917]/5 sketchy-border-3">
                   {guide.rules.map((rule, i) => (
-                    <li key={i} className="flex items-start gap-2 text-xs font-medium text-[#1C1917]/78">
-                      <Check
-                        className="size-3.5 text-[#E9A319] shrink-0 mt-0.5"
-                        strokeWidth={3}
-                        aria-hidden
-                      />
+                    <li key={i} className="flex items-start gap-3 text-xs font-bold text-[#1C1917]/80">
+                      <div className="size-4 bg-[#E9A319] flex items-center justify-center shrink-0 mt-0.5 rounded-sm shadow-[1.5px_1.5px_0_rgba(28,25,23,1)]">
+                        <Check className="size-3 text-[#1C1917]" strokeWidth={4} />
+                      </div>
                       {rule}
                     </li>
                   ))}
                 </ul>
 
                 {/* CTA */}
-                <div className="flex items-center gap-1.5 text-xs font-black text-[#1C1917]/38 group-hover:text-[#1C1917] transition-colors mt-auto">
-                  Read full guide
-                  <ArrowRight className="size-3.5 group-hover:translate-x-0.5 transition-transform" strokeWidth={3} />
+                <div className="flex items-center gap-2 text-[10px] font-black uppercase tracking-[0.15em] text-[#1C1917]/30 group-hover/card:text-[#1C1917] transition-colors mt-auto">
+                  Documentation 
+                  <ArrowRight className="size-3 group-hover/card:translate-x-1 transition-transform" strokeWidth={3} />
                 </div>
               </Link>
             </article>
