@@ -1,7 +1,6 @@
 import Link from "next/link";
 import { ArrowRight } from "lucide-react";
 import { HALL_OF_SHAME } from "./data";
-import { Skull } from "lucide-react";
 
 export function HallOfShame() {
   return (
@@ -11,10 +10,12 @@ export function HallOfShame() {
 
           <div className="flex flex-col sm:flex-row sm:items-start gap-4 mb-10">
             <div className="shrink-0 w-12 h-12 flex items-center justify-center border-2 border-[#1C1917]/22 bg-[#F0EFE9] sketchy-border-2" aria-hidden>
-              <Skull className="size-6 opacity-60" strokeWidth={1.5} />
+              <svg viewBox="0 0 24 24" fill="none" className="w-5 h-5 opacity-55" stroke="currentColor" strokeWidth="1.5">
+                <path d="M9 12h6m-6 4h6M7 4H5a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2V6a2 2 0 00-2-2h-2M9 4a2 2 0 012-2h2a2 2 0 012 2v0a2 2 0 01-2 2h-2a2 2 0 01-2-2z" strokeLinecap="round" strokeLinejoin="round"/>
+              </svg>
             </div>
             <div>
-              <p className="text-xs font-black uppercase tracking-widest text-[#1C1917]/38 mb-1">Real examples</p>
+              <p className="text-xs font-black uppercase tracking-widest text-[#1C1917]/38 mb-1">Catalog entries</p>
               <h2 id="hall-of-shame-heading" className="text-3xl md:text-4xl font-black leading-tight">Documented Patterns</h2>
               <p className="mt-2 text-base text-[#1C1917]/75 font-medium">
                 Three antipatterns with measured real-world impact — and how to fix them.
@@ -36,7 +37,7 @@ export function HallOfShame() {
                       <span className="text-xs font-black bg-[#E9A319] px-2 py-0.5 sketchy-border border border-[#1C1917]/20">{item.stat}</span>
                     </div>
                     <h3 className="text-lg font-black leading-snug mb-3 group-hover:underline group-hover:decoration-wavy group-hover:decoration-[#E9A319] group-hover:underline-offset-3 transition-all">{item.title}</h3>
-                    <p className="text-sm text-[#1C1917]/75 font-medium italic leading-relaxed">&ldquo;{item.excerpt}&rdquo;</p>
+                    <p className="text-sm text-[#1C1917]/72 font-medium leading-relaxed">{item.excerpt}</p>
                     <div className="mt-5 inline-flex items-center gap-1.5 text-xs font-black text-[#1C1917]/38 group-hover:text-[#1C1917] transition-colors">
                       Read full analysis <ArrowRight className="size-3.5 group-hover:translate-x-1 transition-transform" strokeWidth={3} />
                     </div>

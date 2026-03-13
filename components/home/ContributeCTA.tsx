@@ -1,6 +1,5 @@
 import Link from "next/link";
-import Image from "next/image";
-import { Trash2, ExternalLink } from "lucide-react";
+import { ArrowRight, ExternalLink } from "lucide-react";
 
 export function ContributeCTA() {
   return (
@@ -8,21 +7,24 @@ export function ContributeCTA() {
       <div className="max-w-3xl mx-auto text-center">
         <div className="border-[3px] border-[#1C1917]/32 p-10 md:p-16 bg-[#F0EFE9] shadow-[7px_7px_0_rgba(28,25,23,0.09)] -rotate-[0.4deg] sketchy-border-3">
           <div className="flex justify-center mb-6" aria-hidden>
-            <Image src="/baboon.png" alt="" width={56} height={56}
-              className="object-contain border-2 border-[#1C1917]/18 bg-[#FAFAF7] p-0.5 sketchy-border animate-float" />
-          </div>
-          <h2 id="cta-heading" className="text-3xl md:text-4xl font-black mb-4">Found an antipattern we haven't documented?</h2>
-          <p className="text-lg text-[#1C1917]/55 font-medium mb-3 max-w-sm mx-auto">
-            Add it to the library. Your contribution helps teams ship better products.
+              <div className="w-14 h-14 flex items-center justify-center border-2 border-[#1C1917]/22 bg-[#FAFAF7] sketchy-border">
+                <svg viewBox="0 0 24 24" fill="none" className="w-6 h-6" stroke="currentColor" strokeWidth="1.8">
+                  <path d="M12 5v14M5 12h14" strokeLinecap="round" strokeLinejoin="round"/>
+                </svg>
+              </div>
+            </div>
+          <h2 id="cta-heading" className="text-3xl md:text-4xl font-black mb-4">Extend the reference catalog.</h2>
+          <p className="text-lg text-[#1C1917]/72 font-medium mb-3 max-w-sm mx-auto">
+            Document an antipattern you've encountered. Your entry undergoes editorial review before publication.
           </p>
-          <p className="text-xs text-[#1C1917]/35 font-bold uppercase tracking-widest mb-10">
-            Open source · CC BY 4.0 · No login required
+          <p className="text-xs text-[#1C1917]/40 font-bold uppercase tracking-widest mb-10">
+            Community-curated · Structured review process · CC BY 4.0
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Link href="/submit"
               aria-label="Submit a UI antipattern to the open-source library"
               className="group inline-flex items-center justify-center gap-2 h-14 px-9 text-lg font-black bg-[#E9A319] text-[#1C1917] border-[3px] border-[#1C1917]/55 shadow-[4px_4px_0_rgba(28,25,23,0.18)] hover:shadow-none hover:translate-y-1 focus-visible:ring-4 focus-visible:ring-[#E9A319] focus-visible:ring-offset-2 transition-all sketchy-border">
-              <Trash2 className="size-5" strokeWidth={2.5} aria-hidden />Submit a pattern
+              Submit a pattern <ArrowRight className="size-5" strokeWidth={2.5} aria-hidden />
             </Link>
             <Link href="https://github.com" target="_blank" rel="noopener noreferrer"
               aria-label="View the badui.dev source code on GitHub (opens in new tab)"

@@ -138,7 +138,7 @@ export function Hero() {
               <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#E9A319] opacity-80" />
               <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-[#E9A319]" />
             </span>
-            Updated March 2026
+            Updated March 2026 · 120+ entries
           </div>
 
           <h1
@@ -157,14 +157,15 @@ export function Hero() {
           </div>
 
           <p className="animate-fade-up-delay-2 mt-7 text-lg md:text-xl font-semibold text-[#1C1917]/78 max-w-md leading-relaxed">
-            Real-world UI mistakes, quantified impact, and code-ready fixes —
-            for every developer and designer.
+            The definitive reference catalog for frontend developers, designers
+            and product teams. Every entry includes WCAG analysis, measured
+            business impact, and production-ready code fixes.
           </p>
 
           <div className="animate-fade-up-delay-3 mt-8 flex flex-col sm:flex-row gap-3">
             <Link href="/categories" aria-label="Explore all UI antipattern categories"
               className="group inline-flex items-center justify-center gap-2 h-12 px-7 text-base font-black bg-[#E9A319] text-[#1C1917] border-2 border-[#1C1917]/50 shadow-[3px_3px_0_rgba(28,25,23,0.18)] hover:shadow-none hover:translate-y-0.5 focus-visible:ring-4 focus-visible:ring-[#E9A319] focus-visible:ring-offset-2 transition-all sketchy-border">
-              Explore antipatterns
+              Browse the catalog
               <ArrowRight className="size-4 group-hover:translate-x-0.5 transition-transform" strokeWidth={3} />
             </Link>
             <Link href="/submit" aria-label="Submit a UI antipattern to the library"

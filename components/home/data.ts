@@ -84,12 +84,17 @@ export const RECENT_ANTIPATTERNS: AntipatternItem[] = [
 ];
 
 export const MARQUEE_ITEMS = [
-  "120+ antipatterns documented",
-  "12 categories",
-  "47 code-level fixes",
-  "Open source & free",
-  "Real-world examples only",
-  "No filler content",
-  "New patterns weekly",
-  "Built by developers, for developers",
+  "WCAG 2.1 & 2.2 compliance analysis",
+  "Nielsen's 10 usability heuristics",
+  "Baymard Institute research",
+  "Production-ready code fixes",
+  "React · Tailwind · HTML/CSS",
+  "120+ documented antipatterns",
+  "Business impact quantified",
+  "Frontend reference catalog",
+  "Curated by practitioners",
+  "12 structured categories",
+  "A11y violation taxonomy",
+  "No filler · No memes",
 ];
+
