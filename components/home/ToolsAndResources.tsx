@@ -119,7 +119,10 @@ export function ToolsAndResources() {
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-10" role="list">
           {TOOLS.map((tool, i) => (
             <article key={tool.name} role="listitem" className="relative group">
-              <TapeDecoration corner={i % 2 === 0 ? "top-left" : "top-right"} />
+              <TapeDecoration 
+                corner={i % 2 === 0 ? "top-left" : "top-right"} 
+                rotation={[3, -2, 5, -4, 2, -3, 4, -5, 1][i % 9]} 
+              />
               <a
                 href={tool.href}
                 target="_blank"
