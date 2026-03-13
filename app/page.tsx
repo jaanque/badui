@@ -5,6 +5,7 @@ import { ImpactStats } from "@/components/home/ImpactStats";
 import { Categories } from "@/components/home/Categories";
 import { FilteredPatterns } from "@/components/home/FilteredPatterns";
 import { ImprovementGuides } from "@/components/home/ImprovementGuides";
+import { CommunityRanking } from "@/components/home/CommunityRanking";
 import { ToolsAndResources } from "@/components/home/ToolsAndResources";
 import { HallOfShame } from "@/components/home/HallOfShame";
 import { ContributeCTA } from "@/components/home/ContributeCTA";
@@ -50,6 +51,7 @@ export default function Home() {
           <Categories />
           <FilteredPatterns />
           <ImprovementGuides />
+          <CommunityRanking />
           <ToolsAndResources />
           <HallOfShame />
           <ContributeCTA />
